@@ -1,23 +1,26 @@
-Overview of Project
-  A digital representation of Riichi Mahjong.  I am beginning to write the core logic of the game, and hope this will empower front ends for Riichi Mahjong.
+*Overview of Project*
+
+A digital representation of Riichi Mahjong.  I am beginning to write the core logic of the game, and hope this will empower front ends for Riichi Mahjong.
 
 
 
-Installing
+*Installing*
+
   Dependecies: 
-    * npm
-    * nodejs
+  * npm
+  * nodejs
 
-  Run the command "npm install" in the project directory.
-
-
-
-Testing
-  Run the command "npm test" in the project directory.
+Run the command "npm install" in the project directory.
 
 
 
-PR Guidelines
+*Testing*
+
+Run the command "npm test" in the project directory.
+
+
+
+*PR Guidelines*
   * All tests must pass.
   * Most have zero lint errors and zero lint warnings.
   * Any new code must be covered in a test.
