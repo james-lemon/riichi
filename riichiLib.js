@@ -94,9 +94,10 @@ export class Discards {
 }
 
 export class Player {
-  constructor (hand, discards) {
+  constructor (hand, discards, score = 25000) {
     this.hand = hand
     this.discards = discards
+    this.score = score
   }
 
   getHand () {
@@ -105,6 +106,16 @@ export class Player {
 
   getDiscards () {
     return this.discards
+  }
+
+  getScore () {
+    return this.score
+  }
+
+  // Set to negative if user lost points.  Positve if user gained points
+  changeScore (value) {
+    this.score = this.score + value
+    return this.score
   }
 }
 

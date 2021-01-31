@@ -92,6 +92,10 @@ test('playerTests', t => {
   const player = new Player(hand, discards)
   t.is(player.getDiscards().getTiles().length, discards.getTiles().length, 'Discard length is incorrect')
   t.is(player.getHand().getTiles().length, hand.getTiles().length, 'Hand length is incorrect')
+  t.is(player.getScore(), 25000, 'The inital player score is 25000')
+  t.is(player.changeScore(-1000), 24000, 'Change score should reduce for negative values')
+  t.is(player.changeScore(6000), 30000, 'Change score should add for positive values')
+  t.is(player.getScore(), 30000, 'Changing score should presist values in players score')
 })
 
 test('deadWallTests', t => {
