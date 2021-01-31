@@ -1,4 +1,5 @@
 /*
+    -1 = unknown tile (hidden tile)
     1crack = 0
     9crack = 8
     1pin = 9
@@ -15,16 +16,43 @@
 */
 
 export class Tile {
-  constructor (code) {
+  constructor (code = -1, isShown = 'no') {
     this.code = code
+    if (isShown !== 'no' && isShown !== 'yes' && isShown !== 'playerOnly') {
+      throw new Error('invalid isShown value')
+    }
+    if ((isShown === 'yes' || isShown === 'playerOnly') && code === -1) {
+      throw new Error('shown tile cannot have an unknown value')
+    }
+    this.isShown = isShown
+  }
+
+  getIsShown () {
+    return this.isShown
+  }
+
+  setShownValue (isShown) {
+    if (isShown !== 'no' && isShown !== 'yes' && isShown !== 'playerOnly') {
+      throw new Error('invalid isShown value')
+    }
+    if ((isShown === 'yes' || isShown === 'playerOnly') && this.code === -1) {
+      throw new Error('shown tile cannot have an unknown value')
+    }
+    this.isShown = isShown
+    return this.isShown
   }
 
   getCode () {
     return this.code
   }
 
+  setCode (code) {
+    this.code = code
+    return code
+  }
+
   isCrack () {
-    return this.code < 9
+    return this.code > -1 && this.code < 9
   }
 
   isPin () {
@@ -124,20 +152,23 @@ export class Player {
 // 4-7 are dora indiators
 // 8-11 are uradora indiators
 export class DeadWall {
-  constructor (tiles) {
+  constructor (tiles, activeDoraIndicators = 0) {
     if (tiles.length !== 14) {
       throw new Error('A deadwall needs 14 tiles')
     }
     this.tiles = tiles
-    this.activeDoraIndicators = 1
+    this.activeDoraIndicators = activeDoraIndicators
+    this.flipDoraIndicator()
   }
 
   flipDoraIndicator () {
     if (this.activeDoraIndicators === 5) {
-      return false
+      throw new Error('Cannot flip dora indicator')
     }
     this.activeDoraIndicators++
-    return this.tiles[3 + this.activeDoraIndicators]
+    const newDoraTile = this.tiles[3 + this.activeDoraIndicators]
+    newDoraTile.setShownValue('yes')
+    return newDoraTile
   }
 
   // Call kan, then Flip Dora Indicator
@@ -146,6 +177,7 @@ export class DeadWall {
       return false
     }
     const tileToReturn = this.tiles[this.activeDoraIndicators - 1]
+    tileToReturn.setShownValue('playerOnly')
 
     // Moves haiteihai to replace kan draw
     this.tiles[this.activeDoraIndicators - 1] = liveWall.getTiles().pop()
@@ -172,11 +204,14 @@ export class Wall {
   }
 
   draw () {
-    return this.tiles.shift()
+    const drawnTile = this.tiles.shift()
+    drawnTile.setShownValue('playerOnly')
+    return drawnTile
   }
 
   kanReplacement () {
-    return this.tiles.pop()
+    const kanTile = this.tiles.pop()
+    return kanTile
   }
 
   getTiles () {
@@ -217,7 +252,9 @@ export class Table {
     for (let i = 0; i < playerCount; i++) {
       const playerTiles = []
       for (let j = 0; j < 13; j++) {
-        playerTiles.push(tiles.shift())
+        const playerTile = tiles.shift()
+        playerTile.setShownValue('playerOnly')
+        playerTiles.push(playerTile)
       }
       players[i] = new Player(playerTiles)
     }

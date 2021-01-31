@@ -65,6 +65,14 @@ test('tileTests', t => {
   t.is(false, redDragon.isBam(), 'Red dragon is not a bam')
   t.is(true, redDragon.isDragon(), 'Red dragon is a dragon')
   t.is(false, redDragon.isWind(), 'Red dragon is not a wind')
+
+  const defaultTile = new Tile()
+  t.is(defaultTile.getCode(), -1, 'Default tile code is unknown')
+  t.is(defaultTile.getIsShown(), 'no', 'Default tile isShown is no')
+
+  t.is(defaultTile.setCode(5), 5, 'Should be able to update tile code')
+  t.is(defaultTile.setShownValue('playerOnly'), 'playerOnly', 'Should be able to set a tile shown value to playerOnly')
+  t.is(defaultTile.setShownValue('yes'), 'yes', 'Should be able to set a tile shown value to yes')
 })
 
 test('handTests', t => {
@@ -114,12 +122,18 @@ test('deadWallTests', t => {
   t.is(deadWall.getActiveDoraIndicators(), 1, 'All dead walls should start with one active dora indicatior')
   t.is(deadWall.getTiles().length, 14, 'A deadw all always has 14 tiles')
 
-  t.is(deadWall.kan(wall).getCode(), 0, 'The kan tile should be the first tile on the wall')
+  const kanTile = deadWall.kan(wall)
+
+  t.is(kanTile.getCode(), 0, 'The kan tile should be the first tile on the wall')
+  t.is(kanTile.getIsShown(), 'playerOnly', 'Kanned tiles should be shown only to the player that drew it')
   t.is(deadWall.getActiveDoraIndicators(), 1, 'Kanning should not increase the dora indicator, flipping a dora indicator is a seprate action.')
   t.is(deadWall.getTiles().length, 14, 'A dead wall always has 14 tiles')
   t.is(wall.getTiles().length, 68, 'Kanning should have removed a tile from the live wall')
 
-  t.is(deadWall.flipDoraIndicator().getCode(), 5, 'The 2nd dora indicator is the 6th tile on the dead wall')
+  const doraTile = deadWall.flipDoraIndicator()
+
+  t.is(doraTile.getCode(), 5, 'The 2nd dora indicator is the 6th tile on the dead wall')
+  t.is(doraTile.getIsShown(), 'yes', 'Active dora indicators are shown to the entire table')
   t.is(deadWall.getActiveDoraIndicators(), 2, 'Now there are 2 active dora indicators')
   t.is(deadWall.getTiles().length, 14, 'A dead wall always has 14 tiles')
 })
@@ -130,10 +144,18 @@ test('wallTests', t => {
     tiles.push(new Tile(Math.floor(i / 4)))
   }
   const wall = new Wall(tiles)
+  const wallTiles = wall.getTiles()
+  for (let i = 0; i < wallTiles.length; i++) {
+    t.is(wallTiles[i].getIsShown(), 'no', 'Tiles on the wall should be hidden')
+  }
   t.is(wall.getTiles().length, 69, 'A wall should start with 69 tiles')
-  t.is(wall.draw().getCode(), 0, 'The first tile on the wall is a 0 code tile')
+  const drawnTile = wall.draw()
+  t.is(drawnTile.getCode(), 0, 'The first tile on the wall is a 0 code tile')
+  t.is(drawnTile.getIsShown(), 'playerOnly', 'Drawn tiles should be visiable to the player only')
   t.is(wall.getTiles().length, 68, 'Drawing a tile should remove a tile from the wall')
-  t.is(wall.kanReplacement().getCode(), 17, 'The kan replacement tile should be code 17')
+  const kanTile = wall.kanReplacement()
+  t.is(kanTile.getCode(), 17, 'The kan replacement tile should be code 17')
+  t.is(kanTile.getIsShown(), 'no', 'Kan replacement tile should be hidden')
   t.is(wall.getTiles().length, 67, 'Getting the kan repleacement tile should remove a tile from the wall')
 })
 
@@ -177,4 +199,12 @@ test('tableTests', t => {
   t.is(table.getGames().length, 0, 'We have not started a game yet')
   t.is(table.Deal(4).getPlayers().length, 4, 'We started a game with 4 players')
   t.is(table.getGames().length, 1, 'We have a game started')
+
+  const game = table.getGames()[0]
+
+  for (let i = 0; i < game.getPlayers().length; i++) {
+    for (let j = 0; j < game.getPlayers()[i].getHand().length; j++) {
+      t.is(game.getPlayers()[i].getHand()[j].getIsShown(), 'playerOnly', 'tiles delt into a players hand should be viewed only to the player')
+    }
+  }
 })
