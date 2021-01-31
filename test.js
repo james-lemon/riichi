@@ -9,17 +9,29 @@ test('tileSetTests', t => {
     if (tiles[i].getCode() !== Math.floor(i / 4)) {
       t.fail('Problem with initlization of tiles')
     }
+    if (tiles[i].isRed()) {
+      t.fail('We should have no red fives')
+    }
   }
 
   // When shuffled the tiles should be random
   tileSet.shuffle()
 
+  let isShuffled = false
   const shuffledTileSet = tileSet.getTiles()
   for (let i = 0; i < 33 * 4; i++) {
     if (shuffledTileSet[i].getCode() !== Math.floor(i / 4)) {
-      t.pass('Found a tile out of place')
+      // This one is out of place
+      isShuffled = true
     }
   }
+
+  t.is(true, isShuffled, 'Tiles should be shuffled')
+
+  const redFiveTileSet = new TileSet(true)
+  const redFiveTiles = redFiveTileSet.getTiles()
+  t.is(redFiveTiles[16].isRed(), true, 'should have set this tile as red')
+  t.is(redFiveTiles[17].isRed(), false, 'only one five should be set as red')
 })
 
 test('tileTests', t => {
@@ -73,6 +85,11 @@ test('tileTests', t => {
   t.is(defaultTile.setCode(5), 5, 'Should be able to update tile code')
   t.is(defaultTile.setShownValue('playerOnly'), 'playerOnly', 'Should be able to set a tile shown value to playerOnly')
   t.is(defaultTile.setShownValue('yes'), 'yes', 'Should be able to set a tile shown value to yes')
+  t.is(defaultTile.isRed(), false, 'Default tile is not red')
+
+  const redTile = new Tile(4)
+  redTile.setAsRed()
+  t.is(redTile.isRed(), true, 'Tile is set as red')
 })
 
 test('handTests', t => {

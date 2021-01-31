@@ -25,10 +25,22 @@ export class Tile {
       throw new Error('shown tile cannot have an unknown value')
     }
     this.isShown = isShown
+    this.red = false
   }
 
   getIsShown () {
     return this.isShown
+  }
+
+  setAsRed () {
+    if (this.code !== 4 && this.code !== 13 && this.code !== 22) {
+      throw new Error('Only 5s can be red')
+    }
+    this.red = true
+  }
+
+  isRed () {
+    return this.red
   }
 
   setShownValue (isShown) {
@@ -77,11 +89,16 @@ export class Tile {
 }
 
 export class TileSet {
-  constructor () {
+  constructor (redFives = false) {
     this.tiles = []
     for (let i = 0; i < 34; i++) {
       // There are 4 of each tile in a Mahjong set.
-      this.tiles.push(new Tile(i))
+      const tile = new Tile(i)
+      // If redFives set one as red
+      if (redFives && (i === 4 || i === 13 || i === 22)) {
+        tile.setAsRed()
+      }
+      this.tiles.push(tile)
       this.tiles.push(new Tile(i))
       this.tiles.push(new Tile(i))
       this.tiles.push(new Tile(i))
@@ -218,8 +235,8 @@ export class DeadWall {
 // Rules for wall http://arcturus.su/wiki/Haiyama
 export class Wall {
   constructor (tiles) {
-    if (tiles.length !== 69) {
-      throw new Error('A wall needs 69 tiles')
+    if (tiles.length < 69) {
+      throw new Error('A wall has a maximum of 69 tiles')
     }
     this.tiles = tiles
   }
@@ -260,8 +277,8 @@ export class Table {
     this.games = games
   }
 
-  Deal (playerCount) {
-    const tileSet = new TileSet()
+  Deal (playerCount, redFives = false) {
+    const tileSet = new TileSet(redFives)
     tileSet.shuffle()
     const tiles = tileSet.getTiles()
 
