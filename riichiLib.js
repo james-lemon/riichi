@@ -109,6 +109,27 @@ export class Hand {
   getTiles () {
     return this.tiles
   }
+
+  draw (wall) {
+    const drawnTile = wall.draw()
+    this.tiles.push(drawnTile)
+    if (this.tiles.length !== 14) {
+      throw new Error('A player with a tile drawn should always have 14 tiles')
+    }
+    return drawnTile
+  }
+
+  discard (tile) {
+    for (let i = 0; i < this.tiles.length; i++) {
+      if (this.tiles[i].getCode() === tile.getCode()) {
+        const discardTile = this.tiles[i]
+        this.tiles.splice(i, 1)
+        discardTile.setShownValue('yes')
+        return discardTile
+      }
+    }
+    throw new Error('Tried to discard a tile that is not in the hand')
+  }
 }
 
 export class Discards {

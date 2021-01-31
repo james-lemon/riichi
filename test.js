@@ -76,12 +76,26 @@ test('tileTests', t => {
 })
 
 test('handTests', t => {
+  const wallTiles = []
+  for (let i = 0; i < 69; i++) {
+    wallTiles.push(new Tile(Math.floor(i / 4)))
+  }
+  const wall = new Wall(wallTiles)
   const handTiles = []
   for (let i = 0; i < 13; i++) {
     handTiles.push(new Tile(i))
   }
   const hand = new Hand(handTiles)
   t.is(13, hand.getTiles().length, 'The tile count is not current')
+
+  // Simulate drawing and discarding
+  const drawnTile = hand.draw(wall)
+  t.is(hand.getTiles().length, 14, 'Player currently has 14 tiles')
+  t.is(drawnTile.getIsShown(), 'playerOnly', 'A drawn tile is only visable to the player')
+
+  const discardedTile = hand.discard(hand.getTiles()[13])
+  t.is(hand.getTiles().length, 13, 'Player currently has 13 tiles')
+  t.is(discardedTile.getIsShown(), 'yes', 'discard tiles are visable to the public')
 })
 
 test('discardTests', t => {
